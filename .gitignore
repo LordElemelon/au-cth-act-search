@@ -133,3 +133,9 @@ data/
 data_orig/
 data_orig_by_sect/
 data_by_sect/
+
+# IntelliJ
+.idea
+
+# VSCode
+.vscode

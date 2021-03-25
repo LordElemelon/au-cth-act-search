@@ -28,7 +28,7 @@
 
 ### Embedding vectors training
 
-To train embedding vectors and calculate document vectors (Word2Vec, Doc2Vec, fastText and GloVe), run the *app\backend\services\train.py* script (all of them will be trained, so comment models you don't want to train).
+To train word embedding vectors and calculate document vectors (Word2Vec, Doc2Vec, fastText and GloVe), on the *app\backend* path run the command `python -m services.train`.
 
 ## Launching the application
 

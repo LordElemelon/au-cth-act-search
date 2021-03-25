@@ -1,8 +1,8 @@
-import os
-
-from backend.services import utils
-from backend.services.config import Config
 from gensim.models import doc2vec
+from .config import Config
+
+from . import utils
+import os
 
 
 def read_files_walk():
@@ -43,6 +43,6 @@ def read_documents_for_tfidf():
 
 
 def merge_all_sections():
-    with open('../data/corpus/sec_corpus.txt', 'w', encoding="utf8") as f:
+    with open('data/corpus/sec_corpus.txt', 'w', encoding="utf8") as f:
         for path, content in read_files_walk():
             f.write(content)

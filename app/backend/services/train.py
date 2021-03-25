@@ -1,10 +1,12 @@
-from backend.services.model_manager import train
-from backend.services.glove import calculate_documents_glove
-from backend.services.io import merge_all_sections
-from time import perf_counter
+from .model_manager import train
+from .glove import calculate_documents_glove
+from .io_manager import merge_all_sections
 
 if __name__ == '__main__':
-    start = perf_counter()
+    print('Training started. This may take some time...\n')
+
+    # Necessary to run only once
+    merge_all_sections()
 
     # Training
     train(model='word2vec')
@@ -12,8 +14,4 @@ if __name__ == '__main__':
     train(model='fasttext')
     calculate_documents_glove()
 
-    # Necessary to run only once
-    merge_all_sections()
-
-    end = perf_counter()
-    print("Took time: %.2f sec, %.2f min" % ((end - start), (end - start) / 60))
+    print('Everything finished successfully. You are ready to use the application.')
