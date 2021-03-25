@@ -1,11 +1,10 @@
+from . import utils, io_manager
 import numpy as np
-
-from backend.services import utils, io
 
 
 def load_glove(dim='50'):
     embeddings_dict = {}
-    with open(f"../data/glove/glove.840B.300d.txt", 'r', encoding="utf8") as f:  # glove.6B.{dim}d
+    with open(f"data/glove/glove.840B.300d.txt", 'r', encoding="utf8") as f:  # glove.6B.{dim}d
         for line in f:
             values = line.split()
             try:
@@ -20,9 +19,9 @@ def load_glove(dim='50'):
 
 def calculate_documents_glove(vec_op=utils.average):
     embeddings_dict = load_glove()
-    documents_tokens = io.read_documents_for_word2vec()
+    documents_tokens = io_manager.read_documents_for_word2vec()
 
-    with open('../data/glove/document_vectors.txt', 'w', encoding="utf8") as f:
+    with open('data/glove/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:
             doc_vec = []
             for word in doc[1]:
@@ -32,4 +31,6 @@ def calculate_documents_glove(vec_op=utils.average):
                     pass
 
             doc_vec = vec_op(doc_vec)
-            f.write(doc[0].strip().replace('data_by_sect', 'data_orig_by_sect')[3:] + ' ' + ' '.join(map(str, doc_vec)) + '\n')
+            f.write(doc[0].strip().replace('data_by_sect', 'data_orig_by_sect') + ' ' + ' '.join(map(str, doc_vec)) + '\n')
+
+    print('GloVe calculation finished...\n')

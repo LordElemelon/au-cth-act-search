@@ -1,15 +1,15 @@
-from flask import Blueprint
-from backend.services import main
+from flask import Blueprint, request
+from services import main
 
 
 api = Blueprint('api', __name__)
 
 
-@api.route('/word_embedding/<query>')
-def find_documents(query):
-    return main.find_documents(query, technique='fasttext')
+@api.route('/basic-search', methods=['POST'])
+def find_documents():
+    return main.find_documents(request.json['query'], technique='word2vec')
 
 
-@api.route('/qa/<question>')
-def answer(question):
-    return main.answer(question, technique='word2vec')
+@api.route('/qa', methods=['POST'])
+def answer():
+    return main.answer(request.json['question'], technique='allennlp')
