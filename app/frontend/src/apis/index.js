@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosApiClient = axios.create({
-  baseURL: `http://7d802e23b32f.ngrok.io/`,
+  baseURL: `http://localhost:5000/`,
 });
 
 export const elasticClient = axios.create({

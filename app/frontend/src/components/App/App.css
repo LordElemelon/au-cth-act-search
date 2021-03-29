@@ -159,4 +159,10 @@ body {
   width: 664px;
   padding: 20px;
   border-radius: 4px;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.finalText {
+  white-space: pre-line;
 }

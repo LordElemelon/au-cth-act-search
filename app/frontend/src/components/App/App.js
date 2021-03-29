@@ -23,7 +23,7 @@ function App() {
     value: "elastic",
     label: "Elasticsearch",
   });
-  const [result, setResult] = useState("HAHSDHSHAD");
+  const [result, setResult] = useState("");
 
   const onSelect = (some) => {
     setCategory(some);
@@ -46,6 +46,7 @@ function App() {
       setResult("");
       return;
     }
+    setResult("");
     const cat = category.value;
     console.log(value, cat);
     if (cat === "elastic") {
@@ -56,11 +57,14 @@ function App() {
       // for (const text of resultArr) {
       //   res += text;
       // }
-      setResult(resultArr.join("\n"));
+      const finalText = resultArr.join("\n\n\n--------------\n\n\n");
+      console.log(finalText);
+      setResult(finalText);
     } else {
       const resultArr = await apiService.basicSearch(value, cat);
       console.log(resultArr);
-      setResult(resultArr.join("\n"));
+      const finalText = resultArr.join("\n\n\n--------------\n\n\n");
+      setResult(finalText)
     }
   };
 
@@ -98,7 +102,11 @@ function App() {
           </span>
         </button>
       </div>
-      {result && <div className="result">{result}</div>}
+      {result && (
+        <div className="result">
+          <p className="finalText">{result}</p>
+        </div>
+      )}
     </div>
   );
 }
