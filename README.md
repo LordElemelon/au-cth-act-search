@@ -30,6 +30,22 @@
 
 To train word embedding vectors and calculate document vectors (Word2Vec, Doc2Vec, fastText and GloVe), on the *app\backend* path run the command `python -m services.train`.
 
+### Elasticsearch
+
+<ins>Installation process:</ins>
+* Download Elasticsearch from https://www.elastic.co/downloads/elasticsearch
+* Download Kibana tool from https://www.elastic.co/downloads/kibana
+* Navigate to downloaded elasticsearch folder and inside config/elasticsearch.yml (under "Network" section) add the following lines: (`http.cors.enabled: true` and  `http.cors.allow-origin: "*"`)
+* Start elasticsearch by navigating into downloaded elasticsearch directory and run bin\elasticsearch.bat (default port is `9200`)
+* Start kibana by navigating into downloaded kibana directory and run bin\kibana.bat (default port is `5601`)
+* Open http://localhost:5601 and under `Dev Tools` insert first query from  app/elasticsearch/commands.txt. Inserted query is responsible for defining `law` index.
+* Run python script located at app/elasticsearch/json_gen.py in order to generate 2 json files which holds data
+* Insert those data into a previously created index by running 2 post requests `curl -H "Content-Type: application/x-ndjson" -XPOST http://localhost:9200/law/_bulk --data-binary "@data.json"`, one for each json file
+* Congrats, elasticsearch is now ready for use
+
+### Frontend application
+* Navigate into app/frontend directory and run `npm install` and `npm start`
+
 ## Launching the application
 
 To launch the app, in terminal on the *app\backend* path, use one of the following options:
