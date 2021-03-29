@@ -1,0 +1,65 @@
+# All of these commands should be executed separately in kibana dev tool
+
+# Index definition
+PUT /law
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "law_content_analyzer": {
+          "type": "custom",
+          "char_filter": ["html_strip"],
+          "tokenizer": "uax_url_email",
+          "filter": [
+            "lowercase",
+            "english_stop",
+            "asciifolding",
+            "stemmer"
+          ]
+        }
+      },
+      "filter": {
+        "english_stop": { 
+          "type": "stop",
+          "stopwords": "_english_"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "law_content_analyzer"
+      }
+    }
+  }
+}
+
+# Example of bulk
+POST /law/_bulk
+{"index":{"_id":1}}
+{"name":"A_New_Tax_System_(Australian_Business_Number)_Act_1999=1","description":"Short title. This Act may be cited as the A New Tax System (Australian Business Number) Act 1999."}
+{"index":{"_id":2}}
+{"name":"A_New_Tax_System_(Australian_Business_Number)_Act_1999=2","description":"Commencement. This Act commences on the day on which it receives the Royal Assent."}
+{"index":{"_id":3}}
+{"name":"A_New_Tax_System_(Australian_Business_Number)_Act_1999=3","description":"Objects. Main object. The main object of this Act is to make it easier for businesses to conduct their dealings with the Australian Government. This is done by establishing a system for registering businesses and issuing them with unique identifying numbers so that they can identify themselves reliably: in all their dealings with the Australian Government; and for all other Commonwealth purposes. Without limiting paragraph (1)(b), the main object of this Act includes allowing businesses to identify themselves reliably for the purposes of *taxation laws. Reducing registration and reporting requirements The objects of this Act also include reducing the number of government registration and reporting requirements by making the system available to State, Territory and local government regulatory bodies. Note: Section 30 facilitates this object by enabling the Registrar to provide information collected under this Act to State, Territory and local government bodies. Multi-agency dealings. The objects of this Act also include allowing the *Registrar to register and maintain details about representatives of * businesses that are registered under this Act, for the purpose of facilitating electronic dealings by those businesses with *government entities."}
+
+# Example of query
+GET /law/_search
+{
+  "query": {
+    "match": {
+      "description": "Australian government"
+    }
+  }
+}
+
+# Get information about law index
+GET /law
+
+# Delete law index
+DELETE /law
