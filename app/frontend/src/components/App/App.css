@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  font-weight: 400;
+  font-family: "Lato", sans-serif;
 }
 
 body {
@@ -123,11 +125,11 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 4px 0 0 4px;
-
+  width: 160px;
 }
 
 .myArrowClassName {
-  margin-top: 10px;
+  margin-top: 11px;
 }
 
 .search_icon {
@@ -137,9 +139,24 @@ body {
 
 .button {
   background-color: #63c96b;
+  opacity: 1;
   height: 56px !important;
   width: 56px !important;
   outline: none;
   border: none;
   border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: 0.5s all;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.result {
+  margin-top: 20px;
+  background-color: #fdfdfd;
+  width: 664px;
+  padding: 20px;
+  border-radius: 4px;
 }
