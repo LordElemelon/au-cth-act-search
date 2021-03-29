@@ -32,20 +32,6 @@ if __name__ == '__main__':
 
     doc_names = os.listdir(Config.corpus_path)
 
-    # # JSON generation
-    # with open("./data.json", "a+") as json_file:
-    #     id_for_json = 1
-    #     for directory in os.listdir(Config.corpus_path):
-    #         print(directory)
-    #         dir_path = Config.corpus_path+"/"+directory
-    #         for sect_filename in os.listdir(dir_path):
-    #             with open(dir_path+"/"+sect_filename) as sect_file:
-    #                 sect_text = sect_file.read().strip()
-    #                 jsonish_string = '{"index":{"_id":'+str(id_for_json)+'}}\n{"name":"' \
-    #                     + directory.replace('"', '') + '=' + sect_filename[:-4] + '","description":"' + sect_text.replace('"', '') + '"}\n'
-    #                 json_file.write(jsonish_string)
-    #                 id_for_json += 1
-
     # Documents preprocess
     data_lemmatized = []
     for directory in doc_names:
