@@ -42,6 +42,16 @@ def read_documents_for_tfidf():
     return corpus
 
 
+def read_sections(names):
+    sections = []
+    for name in names:
+        act_sect = name.split('=')
+        with open('data/corpus/data_orig_by_sect/' + act_sect[0] + '/' + act_sect[1] + '.txt', 'r', encoding='utf8') as f:
+            sections.append(f.read())
+
+    return sections
+
+
 def merge_all_sections():
     with open('data/corpus/sec_corpus.txt', 'w', encoding="utf8") as f:
         for path, content in read_files_walk():

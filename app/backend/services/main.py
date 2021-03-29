@@ -184,6 +184,10 @@ def find_documents_glove(query, vec_op=utils.average, basic_search=True):
     return sections
 
 
+def read_sections(names):
+    return {'result': io_manager.read_sections(names)}
+
+
 def find_documents(query, technique):
     result = None
 
