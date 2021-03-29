@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
-from . import utils, io_manager
+
+from . import io_manager, utils
 
 
 def sentencebert(query):

@@ -1,40 +1,41 @@
-from transformers import AutoModelForQuestionAnswering, AutoTokenizer
+from transformers import AutoModelForQuestionAnswering, AutoTokenizer, BertForQuestionAnswering, BertTokenizer
 from . import model_manager, main
 
 import torch
 
 
 # https://mccormickml.com/2020/03/10/question-answering-with-a-fine-tuned-BERT/
+# Restriction: max length of text is ~400 words
 def bert(question, embd_technique):
     text = ''
     if embd_technique == 'word2vec':
         word2vec_wv = model_manager.load_model(model='word2vec')
 
-        text = ' '.join([s.strip() for s in main.find_documents_word2vec(question, word2vec_wv)])
+        text = ' '.join([s.strip() for s in main.find_documents_word2vec(question, word2vec_wv, basic_search=False)])
     elif embd_technique == 'doc2vec':
         docvec_model = model_manager.load_model(model='doc2vec')
 
-        text = ' '.join([s.strip() for s in main.find_documents_doc2vec(question, docvec_model)])
+        text = ' '.join([s.strip() for s in main.find_documents_doc2vec(question, docvec_model, basic_search=False)])
     elif embd_technique == 'fasttext':
         fasttext_wv = model_manager.load_model(model='fasttext')
 
-        text = ' '.join([s.strip() for s in main.find_documents_fasttext(question, fasttext_wv)])
+        text = ' '.join([s.strip() for s in main.find_documents_fasttext(question, fasttext_wv, basic_search=False)])
     elif embd_technique == 'tfidf':
-        text = ' '.join([s.strip() for s in main.find_documents_tfidf(question)])
+        text = ' '.join([s.strip() for s in main.find_documents_tfidf(question, basic_search=False)])
     elif embd_technique == 'glove':
-        text = ' '.join([s.strip() for s in main.find_documents_glove(question)])
+        text = ' '.join([s.strip() for s in main.find_documents_glove(question, basic_search=False)])
 
     print('Text:', text)
 
     # Model
     # Also try: bert-large-uncased-whole-word-masking-finetuned-squad, deepset/roberta-base-squad2, distilbert-base-uncased-distilled-squad, distilbert-base-cased-distilled-squad
-    # bert_model = BertForQuestionAnswering.from_pretrained('deepset/roberta-base-squad2', return_dict = False) # , return_dict = False
-    bert_model = AutoModelForQuestionAnswering.from_pretrained("distilbert-base-uncased-distilled-squad")
+    bert_model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad') # , return_dict = False
+    # bert_model = AutoModelForQuestionAnswering.from_pretrained("distilbert-base-uncased-distilled-squad")
 
     # Tokenizer
     # Also try: bert-large-uncased-whole-word-masking-finetuned-squad, deepset/roberta-base-squad2, distilbert-base-uncased-distilled-squad, distilbert-base-cased-distilled-squad
-    # tokenizer = BertTokenizer.from_pretrained('deepset/roberta-base-squad2')
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased-distilled-squad")
+    tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+    # tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased-distilled-squad")
 
     # for section in read_documents_for_tfidf():
     input_ids = tokenizer.encode(question, text)

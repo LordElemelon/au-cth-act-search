@@ -1,6 +1,6 @@
-from gensim.models import Word2Vec, doc2vec as Doc2Vec, FastText
-from . import word2vec, doc2vec, fasttext, utils
 from gensim.models import KeyedVectors
+from gensim.models import Word2Vec, doc2vec as Doc2Vec, FastText
+from . import doc2vec, fasttext, utils, word2vec
 
 import gensim.downloader as api
 import os
@@ -20,24 +20,31 @@ def train(model, transfer_learning=False):
         embd_model = fasttext.train_fasttext()
 
     save_model(embd_model)
+
+    if model == 'word2vec':
+        print('Word2Vec training finished...')
+    elif model == 'doc2vec':
+        print('Doc2Vec training finished...')
+    elif model == 'fasttext':
+        print('fastText training finished...')
     return embd_model
 
 
 def save_model(model):
     if type(model) == Word2Vec:
-        path = '../data/word2vec'
+        path = 'data/word2vec'
         if not os.path.exists(path):
             os.makedirs(path)
 
         model.wv.save(path + '/gensim-word2vec.wv')
     elif type(model) == Doc2Vec.Doc2Vec:
-        path = '../data/doc2vec'
+        path = 'data/doc2vec'
         if not os.path.exists(path):
             os.makedirs(path)
 
         model.save(path + '/gensim-doc2vec.model')
     elif type(model) == FastText:
-        path = '../data/fasttext'
+        path = 'data/fasttext'
         if not os.path.exists(path):
             os.makedirs(path)
 

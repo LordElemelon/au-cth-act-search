@@ -1,6 +1,6 @@
 from gensim.models import doc2vec
 from . import io_manager
-import os
+from pathlib import Path
 
 
 # https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html
@@ -15,11 +15,10 @@ def train_doc2vec(dm=1, vector_size=100, window=5, min_count=2, workers=8, epoch
 
     documents_tokens = io_manager.read_documents_for_doc2vec(tokens_only=True)
 
-    if not os.path.exists('../data/doc2vec'):
-        os.makedirs('../data/doc2vec')
-    with open('../data/doc2vec/document_vectors.txt', 'w', encoding="utf8") as f:
+    Path("data/doc2vec").mkdir(parents=True, exist_ok=True)
+    with open('data/doc2vec/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:
             doc_vec = model.infer_vector(doc[1])
-            f.write(doc[0].strip().replace('data_by_sect', 'data_orig_by_sect')[3:] + ' ' + ' '.join(map(str, doc_vec)) + '\n')
+            f.write(doc[0].strip().replace('data_by_sect', 'data_orig_by_sect') + ' ' + ' '.join(map(str, doc_vec)) + '\n')
 
     return model

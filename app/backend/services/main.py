@@ -1,13 +1,13 @@
-import pandas as pd
-
-from . import utils, io_manager, glove, tfidf, model_manager, bert, allen_nlp, sentencebert, infersent
-from .config import Config
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
+from .config import Config
+
+import pandas as pd
+from . import allen_nlp, bert, glove, infersent, io_manager, model_manager, sentencebert, tfidf, utils
 
 
-def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False):
+def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False, basic_search=True):
     query_tokens = utils.preprocess(query)
 
     tfidf_scores = None
@@ -27,10 +27,14 @@ def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False):
 
     sections = []
     for i, row in df.iterrows():
-        if i == Config.sections_to_display:
+        if basic_search:
+            if i == Config.sections_to_display:
+                break
+        elif i == Config.sections_to_pass:
             break
 
-        with open(df['doc'][i], 'r', encoding="utf8") as f:
+        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
+        with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
             sections.append(section)
@@ -39,7 +43,7 @@ def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False):
     return sections
 
 
-def find_documents_doc2vec(query, model):
+def find_documents_doc2vec(query, model, basic_search=True):
     query_tokens = utils.preprocess(query)
     query_vector = model.infer_vector(query_tokens)
 
@@ -54,10 +58,14 @@ def find_documents_doc2vec(query, model):
 
     sections = []
     for i, row in df.iterrows():
-        if i == Config.sections_to_display:
+        if basic_search:
+            if i == Config.sections_to_display:
+                break
+        elif i == Config.sections_to_pass:
             break
 
-        with open(df['doc'][i], 'r', encoding="utf8") as f:
+        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
+        with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
             sections.append(section)
@@ -66,7 +74,7 @@ def find_documents_doc2vec(query, model):
     return sections
 
 
-def find_documents_tfidf(query):
+def find_documents_tfidf(query, basic_search=True):
     documents = io_manager.read_documents_for_tfidf()
 
     tokenizer = tfidf.LemmaTokenizer()
@@ -88,10 +96,14 @@ def find_documents_tfidf(query):
 
     sections = []
     for i, row in df.iterrows():
-        if i == Config.sections_to_display:
+        if basic_search:
+            if i == Config.sections_to_display:
+                break
+        elif i == Config.sections_to_pass:
             break
 
-        with open(df['doc'][i], 'r', encoding="utf8") as f:
+        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
+        with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
             sections.append(section)
@@ -100,7 +112,7 @@ def find_documents_tfidf(query):
     return sections
 
 
-def find_documents_fasttext(query, wv, vec_op=utils.average):
+def find_documents_fasttext(query, wv, vec_op=utils.average, basic_search=True):
     query_tokens = utils.preprocess(query)
     query_vec = vec_op([wv[word] for word in query_tokens])
 
@@ -116,10 +128,14 @@ def find_documents_fasttext(query, wv, vec_op=utils.average):
 
     sections = []
     for i, row in df.iterrows():
-        if i == Config.sections_to_display:
+        if basic_search:
+            if i == Config.sections_to_display:
+                break
+        elif i == Config.sections_to_pass:
             break
 
-        with open(df['doc'][i], 'r', encoding="utf8") as f:
+        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
+        with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
             sections.append(section)
@@ -128,7 +144,7 @@ def find_documents_fasttext(query, wv, vec_op=utils.average):
     return sections
 
 
-def find_documents_glove(query, vec_op=utils.average):
+def find_documents_glove(query, vec_op=utils.average, basic_search=True):
     embeddings_dict = glove.load_glove()
     query_tokens = utils.preprocess(query)
 
@@ -152,10 +168,14 @@ def find_documents_glove(query, vec_op=utils.average):
 
     sections = []
     for i, row in df.iterrows():
-        if i == Config.sections_to_display:
+        if basic_search:
+            if i == Config.sections_to_display:
+                break
+        elif i == Config.sections_to_pass:
             break
 
-        with open(df['doc'][i], 'r', encoding="utf8") as f:
+        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
+        with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
             sections.append(section)
@@ -165,6 +185,10 @@ def find_documents_glove(query, vec_op=utils.average):
 
 def find_documents_lda(query):
     pass
+
+
+def read_sections(names):
+    return {'result': io_manager.read_sections(names)}
 
 
 def find_documents(query, technique):
@@ -200,7 +224,7 @@ def answer(question, technique):
     result = None
 
     if technique == 'bert':
-        result = bert.bert(question, embd_technique='word2vec')
+        result = bert.bert(question, embd_technique='glove')
     elif technique == 'allennlp':
         result = allen_nlp.allennlp(question, embd_technique='word2vec')
 
