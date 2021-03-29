@@ -1,19 +1,22 @@
 from gensim.models import Word2Vec
-from backend.services import tfidf, utils, io
+from . import tfidf, utils, io_manager
+import os
 
 # https://radimrehurek.com/gensim_3.8.3/models/word2vec.html
 
 
 def train_word2vec(vec_op=utils.average, tf_idf=False, size=100, window=5, min_count=1, workers=4, sg=0, epochs=5):
-    documents_tokens = io.read_documents_for_word2vec()
+    documents_tokens = io_manager.read_documents_for_word2vec()
 
     sentences = [t[1] for t in documents_tokens]
     model = Word2Vec(sentences=sentences, size=size, window=window, min_count=min_count, workers=workers, sg=sg)
 
     tfidf_scores = None
     if tf_idf:
-        tfidf_scores = tfidf.tfidf([path_content[1] for path_content in io.read_documents_for_tfidf()])
+        tfidf_scores = tfidf.tfidf([path_content[1] for path_content in io_manager.read_documents_for_tfidf()])
 
+    if not os.path.exists('../data/word2vec'):
+        os.makedirs('../data/word2vec')
     with open('../data/word2vec/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:
             doc_vec = vec_op([model.wv[word] * tfidf_scores[word] if tf_idf else model.wv[word] for word in doc[1]])
@@ -23,7 +26,7 @@ def train_word2vec(vec_op=utils.average, tf_idf=False, size=100, window=5, min_c
 
 
 def word2vec_transfer_learning():
-    sentences = [t[1] for t in io.read_documents_for_word2vec()]
+    sentences = [t[1] for t in io_manager.read_documents_for_word2vec()]
 
     # size option needs to be set to 300 to be the same as Google's pre-trained model
     model = Word2Vec(size=300, window=5, min_count=1, workers=4, sg=0)

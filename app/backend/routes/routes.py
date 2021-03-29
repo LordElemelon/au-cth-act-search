@@ -1,5 +1,5 @@
 from flask import Blueprint
-from backend.services import main
+from ..services import main
 
 
 api = Blueprint('api', __name__)

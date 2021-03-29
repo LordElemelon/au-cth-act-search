@@ -1,6 +1,6 @@
 import numpy as np
 
-from backend.services import utils, io
+from . import utils, io_manager
 
 
 def load_glove(dim='50'):
@@ -20,7 +20,7 @@ def load_glove(dim='50'):
 
 def calculate_documents_glove(vec_op=utils.average):
     embeddings_dict = load_glove()
-    documents_tokens = io.read_documents_for_word2vec()
+    documents_tokens = io_manager.read_documents_for_word2vec()
 
     with open('../data/glove/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:

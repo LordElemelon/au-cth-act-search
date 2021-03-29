@@ -1,7 +1,7 @@
 import pandas as pd
 
-from backend.services import utils, io, glove, tfidf, model_manager, bert, allen_nlp, sentencebert, infersent
-from backend.services.config import Config
+from . import utils, io_manager, glove, tfidf, model_manager, bert, allen_nlp, sentencebert, infersent
+from .config import Config
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -12,7 +12,7 @@ def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False):
 
     tfidf_scores = None
     if tf_idf:
-        tfidf_scores = tfidf.tfidf([path_content[1] for path_content in io.read_documents_for_tfidf()])
+        tfidf_scores = tfidf.tfidf([path_content[1] for path_content in io_manager.read_documents_for_tfidf()])
 
     query_vec = vec_op([wv[word] * tfidf_scores[word] if tf_idf else wv[word] for word in query_tokens])
 
@@ -67,7 +67,7 @@ def find_documents_doc2vec(query, model):
 
 
 def find_documents_tfidf(query):
-    documents = io.read_documents_for_tfidf()
+    documents = io_manager.read_documents_for_tfidf()
 
     tokenizer = tfidf.LemmaTokenizer()
     token_stop = tokenizer(' '.join(stopwords.words('english')))
@@ -163,6 +163,9 @@ def find_documents_glove(query, vec_op=utils.average):
 
     return sections
 
+def find_documents_lda(query):
+    pass
+
 
 def find_documents(query, technique):
     result = None
@@ -187,6 +190,8 @@ def find_documents(query, technique):
         result = sentencebert.sentencebert(query)
     elif technique == 'infersent':
         result = infersent.infersent(query)
+    elif technique == 'lda':
+        result = find_documents_lda(query)
 
     return {'result': result}
 

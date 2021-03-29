@@ -1,6 +1,6 @@
 from allennlp.predictors import Predictor
 
-from backend.services import main, model_manager
+from . import main, model_manager
 
 
 def allennlp(ques, embd_technique):

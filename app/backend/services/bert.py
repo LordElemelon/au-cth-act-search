@@ -1,5 +1,5 @@
 from transformers import AutoModelForQuestionAnswering, AutoTokenizer
-from backend.services import model_manager, main
+from . import model_manager, main
 
 import torch
 

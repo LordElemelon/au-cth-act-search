@@ -1,5 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
-from backend.services import utils
+from . import utils
 
 
 class LemmaTokenizer:

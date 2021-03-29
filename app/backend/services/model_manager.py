@@ -1,9 +1,10 @@
 from gensim.models import Word2Vec, doc2vec as Doc2Vec, FastText
-from backend.services import word2vec, doc2vec, fasttext, utils
+from . import word2vec, doc2vec, fasttext, utils
 from gensim.models import KeyedVectors
 
 import gensim.downloader as api
 import os
+import pickle
 
 
 def train(model, transfer_learning=False):
@@ -80,3 +81,15 @@ def load_model(model, pretrained=False):
             return
 
         return KeyedVectors.load(path, mmap='r')
+    elif model == 'lda':
+        path1 = 'data/lda/topics.pickle'
+        path2 = 'data/lda/belong.pickle'
+        if (not os.path.exists(path1)) or (not os.path.exists(path2)):
+            print(f"{utils.Colors.FAIL}You don't have any trained LDA models.{utils.Colors.ENDC}")
+            return
+
+        with open(path1, 'rb') as handle:
+            topics = pickle.load(handle)
+        with open(path2, 'rb') as handle:
+            belong = pickle.load(handle)
+        return topics, belong

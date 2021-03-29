@@ -1,5 +1,6 @@
 from gensim.models import doc2vec
-from backend.services import io
+from . import io_manager
+import os
 
 
 # https://radimrehurek.com/gensim_3.8.3/models/doc2vec.html
@@ -7,13 +8,15 @@ def train_doc2vec(dm=1, vector_size=100, window=5, min_count=2, workers=8, epoch
     model = doc2vec.Doc2Vec(dm=dm, vector_size=vector_size, window=window, min_count=min_count, workers=workers,
                             epochs=epochs)
 
-    train_corpus = list(io.read_documents_for_doc2vec())
+    train_corpus = list(io_manager.read_documents_for_doc2vec())
 
     model.build_vocab(train_corpus)
     model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 
-    documents_tokens = io.read_documents_for_doc2vec(tokens_only=True)
+    documents_tokens = io_manager.read_documents_for_doc2vec(tokens_only=True)
 
+    if not os.path.exists('../data/doc2vec'):
+        os.makedirs('../data/doc2vec')
     with open('../data/doc2vec/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:
             doc_vec = model.infer_vector(doc[1])

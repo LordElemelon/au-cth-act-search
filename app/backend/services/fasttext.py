@@ -1,5 +1,6 @@
 from gensim.models import FastText
-from backend.services import utils, io
+from . import utils, io_manager
+import os
 
 
 def train_fasttext(vec_op=utils.average):
@@ -12,8 +13,10 @@ def train_fasttext(vec_op=utils.average):
     model.train(corpus_file='../data/corpus/sec_corpus.txt', epochs=model.epochs,
                 total_examples=model.corpus_count, total_words=model.corpus_total_words)
 
-    documents_tokens = io.read_documents_for_word2vec()
+    documents_tokens = io_manager.read_documents_for_word2vec()
 
+    if not os.path.exists('../data/fasttext'):
+        os.makedirs('../data/fasttext')
     with open('../data/fasttext/document_vectors.txt', 'w', encoding="utf8") as f:
         for doc in documents_tokens:
             doc_vec = vec_op([model.wv[word] for word in doc[1]])

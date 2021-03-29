@@ -1,9 +1,9 @@
 import torch
 import pandas as pd
 
-from backend.services import utils, io
-from backend.services.config import Config
-from backend.services.is_models import InferSent
+from . import utils, io_manager
+from .config import Config
+from .is_models import InferSent
 
 
 def infersent(query, trained=True):
@@ -17,7 +17,7 @@ def infersent(query, trained=True):
     FASTTEXT_PATH = '../data/fasttext/crawl-300d-2M.vec'
     infersent_model.set_w2v_path(FASTTEXT_PATH)
 
-    documents = [path_content[1] for path_content in io.read_documents_for_tfidf()]
+    documents = [path_content[1] for path_content in io_manager.read_documents_for_tfidf()]
     infersent_model.build_vocab([path_content[1] for path_content in documents], tokenize=True)
 
     if not trained:

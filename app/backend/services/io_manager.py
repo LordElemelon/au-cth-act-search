@@ -1,11 +1,13 @@
 import os
 
-from backend.services import utils
-from backend.services.config import Config
+from . import utils
+from .config import Config
 from gensim.models import doc2vec
 
 
 def read_files_walk():
+    #print("\n\nHELLO\n\n"+os.path.abspath(Config.corpus_path)+"\n\n")
+    
     for root, dirs, files in os.walk(Config.corpus_path):
         for file in files:
             if file.endswith(".txt"):
