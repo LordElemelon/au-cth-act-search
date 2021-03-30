@@ -218,6 +218,7 @@ if __name__ == '__main__':
         pickle.dump(topics_to_save, handle, protocol=pickle.HIGHEST_PROTOCOL)
     with open(Config.lda_path+'/belong.pickle', 'wb') as handle:
         pickle.dump(total_belonging, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    lda_model.save(Config.lda_path+'/lda.model')
 
     # print(lda_model[corpus[0]])
     # print("\n")
