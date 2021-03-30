@@ -1,4 +1,5 @@
 from nltk.corpus import stopwords
+from gensim import corpora
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from .config import Config
@@ -30,7 +31,7 @@ def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False, basic
         if basic_search:
             if i == Config.sections_to_display:
                 break
-        elif i == Config.sections_to_pass:
+        elif i == Config.sections_to_display:
             break
 
         path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
@@ -61,7 +62,7 @@ def find_documents_doc2vec(query, model, basic_search=True):
         if basic_search:
             if i == Config.sections_to_display:
                 break
-        elif i == Config.sections_to_pass:
+        elif i == Config.sections_to_display:
             break
 
         path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
@@ -99,7 +100,7 @@ def find_documents_tfidf(query, basic_search=True):
         if basic_search:
             if i == Config.sections_to_display:
                 break
-        elif i == Config.sections_to_pass:
+        elif i == Config.sections_to_display:
             break
 
         path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
@@ -131,7 +132,7 @@ def find_documents_fasttext(query, wv, vec_op=utils.average, basic_search=True):
         if basic_search:
             if i == Config.sections_to_display:
                 break
-        elif i == Config.sections_to_pass:
+        elif i == Config.sections_to_display:
             break
 
         path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
@@ -171,7 +172,7 @@ def find_documents_glove(query, vec_op=utils.average, basic_search=True):
         if basic_search:
             if i == Config.sections_to_display:
                 break
-        elif i == Config.sections_to_pass:
+        elif i == Config.sections_to_display:
             break
 
         path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
@@ -183,8 +184,53 @@ def find_documents_glove(query, vec_op=utils.average, basic_search=True):
 
     return sections
 
+
 def find_documents_lda(query):
-    pass
+    model, topic_repres, belonging = model_manager.load_model(model='lda')
+    id2word = corpora.Dictionary.load(Config.lda_path+'/dict.pickle')
+
+    corp = utils.preprocess(query, punct=True, stopwrd=True, lda_clear=True)
+    doc_bow = id2word.doc2bow(corp)
+    all_belong_values = model[doc_bow]
+    max_belong_value = max([y for x, y in all_belong_values])
+    filtered_belong_values = [x for x, y in all_belong_values if y > 0.5*max_belong_value]
+
+    print(all_belong_values)
+    print(filtered_belong_values)
+
+    filenames = list(set().union(*[belonging[x] for x in filtered_belong_values]))
+    print(len(filenames))
+    print(filenames)
+
+    word2vec_wv = model_manager.load_model(model='word2vec')
+
+    query_vec = utils.average([word2vec_wv[word] for word in corp])
+
+    df = pd.DataFrame(columns=['doc', 'similarity'])
+    with open('data/word2vec/document_vectors.txt', 'r', encoding="utf8") as f:
+        for i, line in enumerate(f):
+            values = line.split()
+            if not any((filenm+"\\") in values[0] for filenm in filenames):
+                continue
+            doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
+            df.loc[i] = [values[0], doc_similarity]
+
+    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    print(df)
+
+    sections = []
+    for i, row in df.iterrows():
+        if i == Config.sections_to_display:
+            break
+
+        path = df['doc'][i]
+        with open(path, 'r', encoding="utf8") as f:
+            section = f.read()
+
+            sections.append(section)
+            print(section)
+
+    return sections
 
 
 def read_sections(names):
@@ -229,3 +275,6 @@ def answer(question, technique):
         result = allen_nlp.allennlp(question, embd_technique='word2vec')
 
     return {'result': result}
+
+if __name__ == '__main__':
+    find_documents("illegal gambling", "lda")
