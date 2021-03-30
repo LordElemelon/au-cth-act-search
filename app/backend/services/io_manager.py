@@ -6,6 +6,8 @@ import os
 
 
 def read_files_walk():
+    #print("\n\nHELLO\n\n"+os.path.abspath(Config.corpus_path)+"\n\n")
+    
     for root, dirs, files in os.walk(Config.corpus_path):
         for file in files:
             if file.endswith(".txt"):

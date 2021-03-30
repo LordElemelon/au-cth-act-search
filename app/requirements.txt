@@ -10,3 +10,5 @@ allennlp-models
 sentence-transformers
 flask
 gensim
+matplotlib
+seaborn

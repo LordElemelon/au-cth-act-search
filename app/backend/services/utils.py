@@ -1,5 +1,7 @@
 import spacy
 import numpy as np
+import nltk
+from nltk.corpus import stopwords
 
 # Uncomment the next line just for the first run, then comment it
 # nltk.download('punkt')
@@ -35,17 +37,31 @@ def punctuation():
     return [',', '.', '\'', '\"', '?', '!', '_', '-', ':', ';', '(', ')', '[', ']', '{', '}',
             '*', '+', '\\', '&', '^', '%', '#', '$', '@', '<', '>', '‘', '`', '~', 'Ă']
 
+def lda_clear_words():
+    return ['section', 'act', 'subsection', 'purpose', 'person', 'relation', 'apply', 'provision', '--',
+            'paragraph', 'period', 'day', 'give', 'include', 'notice', 'time', 'mean', 'note', 'specify',
+            'commonwealth', 'application', 'information', 'relate', 'take', 'require', 'matter', 'respect',
+            'provide', 'effect', 'year', 'minister', 'state', 'decision', 'meaning']
+
 
 # If not lemmatization, then tokenize the string, remove the punctuation, or just simply call utils.simple_preprocess(line)
-def preprocess(s, op=nlp, lowercase=True, punct=False):
+def preprocess(s, op=nlp, lowercase=True, punct=False, stopwrd=False, lda_clear=False):
     """
     lowercase -- convert words to lowercase, default = True
     punct -- get rid of punctuation, default = False
     """
     doc = op(s, disable=['ner', 'parser'])
+    stop_words = stopwords.words('english') if stopwrd else []
+    drop_words = lda_clear_words() if lda_clear else []
 
     tokens = []
     for token in doc:
+        if token.text.lower() in stop_words:
+            continue
+        if token.lemma_.lower() in drop_words:
+            continue
+        if lda_clear and (token.lemma_[0].isnumeric() or len(token.lemma_) < 2):
+            continue
         if punct:
             if not token.is_stop and token.text not in punctuation():
                 tokens.append(

@@ -1,4 +1,5 @@
 class Config:
-    corpus_path = 'data/corpus/data_by_sect'
+    corpus_path = './data/corpus/data_by_sect'
+    lda_path = './data/lda'
     sections_to_display = 5
-    sections_to_pass = 5
+    answers_to_display = 5
