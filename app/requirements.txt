@@ -9,6 +9,7 @@ allennlp
 allennlp-models
 sentence-transformers
 flask
+flask_cors
 gensim
 matplotlib
 seaborn
