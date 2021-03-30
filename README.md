@@ -2,6 +2,9 @@
 - [Instructions](#instructions)
   - [Before use](#before-use)
     - [Embedding vectors training](#embedding-vectors-training)
+    - [LDA topic model training](#lda-topic-model-training)
+    - [Elasticsearch](#elasticsearch)
+    - [Frontend application](#frontend-application)
   - [Launching the application](#launching-the-application)
 - [Team](#team)
 
@@ -29,6 +32,10 @@
 ### Embedding vectors training
 
 To train word embedding vectors and calculate document vectors (Word2Vec, Doc2Vec, fastText and GloVe), on the *app\backend* path run the command `python -m services.train`.
+
+### LDA topic model training
+
+To train the LDA model and the corresponding objects used in topic modelling, on the *app\backend* path run the command `python -m services.train_lda`.
 
 ### Elasticsearch
 
