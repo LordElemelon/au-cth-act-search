@@ -7,11 +7,12 @@ import apiService from "../../apis/api";
 
 const options = [
   { value: "elastic", label: "Elasticsearch" },
-  { value: "word2vec", label: "Word2vec" },
+  { value: "lda", label: "LDA" },
   { value: "doc2vec", label: "Doc2vec" },
-  { value: "fasttext", label: "Fasttext" },
+  { value: "word2vec", label: "Word2vec" },
   { value: "glove", label: "Glove" },
   { value: "tfidf", label: "Tfidf" },
+  { value: "fasttext", label: "Fasttext" },
 ];
 
 function App() {
@@ -64,7 +65,7 @@ function App() {
       const resultArr = await apiService.basicSearch(value, cat);
       console.log(resultArr);
       const finalText = resultArr.join("\n\n\n--------------\n\n\n");
-      setResult(finalText)
+      setResult(finalText);
     }
   };
 
