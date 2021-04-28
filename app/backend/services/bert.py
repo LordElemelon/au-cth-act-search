@@ -37,7 +37,7 @@ def bert(question, embd_technique):
     tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
     # tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased-distilled-squad")
 
-    # for section in read_documents_for_tfidf():
+    # for section in read_documents_for_word2vec():
     input_ids = tokenizer.encode(question, text)
 
     # BERT only needs the token IDs, but for the purpose of inspecting the

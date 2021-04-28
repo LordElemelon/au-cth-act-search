@@ -1,114 +1,66 @@
-from nltk.corpus import stopwords
+import numpy as np
+import pickle
 from gensim import corpora
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
+from scipy.sparse import load_npz
 from .config import Config
-
-import pandas as pd
-from . import allen_nlp, bert, glove, infersent, io_manager, model_manager, sentencebert, tfidf, utils
+from . import allen_nlp, bert, glove, infersent, io_manager, model_manager, sentencebert, utils
 
 
-def find_documents_word2vec(query, wv, vec_op=utils.average, tf_idf=False, basic_search=True):
+def find_documents_word2vec(query, wv, vec_op=utils.average, basic_search=True):
     query_tokens = utils.preprocess(query)
+    query_vec = vec_op([wv[word] for word in query_tokens])
 
-    tfidf_scores = None
-    if tf_idf:
-        tfidf_scores = tfidf.tfidf([path_content[1] for path_content in io_manager.read_documents_for_tfidf()])
+    matrix = np.load('data/word2vec/document_vectors.npy', allow_pickle=True)
+    matrix, docs = np.array([pair[1] for pair in matrix]), [pair[0] for pair in matrix]
 
-    query_vec = vec_op([wv[word] * tfidf_scores[word] if tf_idf else wv[word] for word in query_tokens])
+    results = []
+    [results.append((docs[i], utils.cosine(query_vec, matrix[i]))) for i in range(len(docs))]
 
-    df = pd.DataFrame(columns=['doc', 'similarity'])
-    with open('data/word2vec/document_vectors.txt', 'r', encoding="utf8") as f:
-        for i, line in enumerate(f):
-            values = line.split()
-            doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
-            df.loc[i] = [values[0], doc_similarity]
-
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if basic_search:
-            if i == Config.sections_to_display:
-                break
-        elif i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0] if basic_search else row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
 
 def find_documents_doc2vec(query, model, basic_search=True):
     query_tokens = utils.preprocess(query)
-    query_vector = model.infer_vector(query_tokens)
+    query_vec = model.infer_vector(query_tokens)
 
-    df = pd.DataFrame(columns=['doc', 'similarity'])
-    with open('data/doc2vec/document_vectors.txt', 'r', encoding="utf8") as f:
-        for i, line in enumerate(f):
-            values = line.split()
-            doc_similarity = utils.cosine(query_vector, [float(x) for x in values[1:]])
-            df.loc[i] = [values[0], doc_similarity]
+    matrix = np.load('data/doc2vec/document_vectors.npy', allow_pickle=True)
+    matrix, docs = np.array([pair[1] for pair in matrix]), [pair[0] for pair in matrix]
 
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    results = []
+    [results.append((docs[i], utils.cosine(query_vec, matrix[i]))) for i in range(len(docs))]
+
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if basic_search:
-            if i == Config.sections_to_display:
-                break
-        elif i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0] if basic_search else row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
 
 def find_documents_tfidf(query, basic_search=True):
-    documents = io_manager.read_documents_for_tfidf()
+    tokens = ' '.join(utils.preprocess(query))
+    paths = io_manager.get_paths()
 
-    tokenizer = tfidf.LemmaTokenizer()
-    token_stop = tokenizer(' '.join(stopwords.words('english')))
+    vectorizer = pickle.load(open('data/tfidf/vectorizer.pk', 'rb'))
+    document_vectors = load_npz('data/tfidf/document_vectors.npz')
 
-    # Create TF-IDF model
-    vectorizer = TfidfVectorizer(stop_words=token_stop, tokenizer=tokenizer)
-    doc_vectors = vectorizer.fit_transform([query] + [path_content[1] for path_content in documents])
+    vec = vectorizer.transform([tokens])
 
-    # Calculate similarities
-    cosine_similarities = linear_kernel(doc_vectors[0:1], doc_vectors).flatten()
-    document_scores = [item.item() for item in cosine_similarities[1:]]
-    df = pd.DataFrame(columns=['doc', 'similarity'])
-    for i, doc in enumerate(documents):
-        # print("Doc = ", doc, "; similarity = ", document_scores[i])
-        df.loc[i] = [doc[0], document_scores[i]]
+    results = []
+    [results.append((paths[i], utils.cosine(document_vectors[i].toarray(), vec.toarray().transpose()))) for i in range(len(paths))]
 
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if basic_search:
-            if i == Config.sections_to_display:
-                break
-        elif i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0] if basic_search else row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
@@ -117,30 +69,17 @@ def find_documents_fasttext(query, wv, vec_op=utils.average, basic_search=True):
     query_tokens = utils.preprocess(query)
     query_vec = vec_op([wv[word] for word in query_tokens])
 
-    df = pd.DataFrame(columns=['doc', 'similarity'])
+    matrix = np.load('data/fasttext/document_vectors.npy', allow_pickle=True)
+    matrix, docs = np.array([pair[1] for pair in matrix]), [pair[0] for pair in matrix]
 
-    with open('data/fasttext/document_vectors.txt', 'r', encoding="utf8") as f:
-        for i, line in enumerate(f):
-            values = line.split()
-            doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
-            df.loc[i] = [values[0], doc_similarity]
+    results = []
+    [results.append((docs[i], utils.cosine(query_vec, matrix[i]))) for i in range(len(docs))]
 
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if basic_search:
-            if i == Config.sections_to_display:
-                break
-        elif i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0] if basic_search else row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
@@ -157,30 +96,18 @@ def find_documents_glove(query, vec_op=utils.average, basic_search=True):
             pass
 
     query_vec = vec_op(query_vec)
-    df = pd.DataFrame(columns=['doc', 'similarity'])
 
-    with open('data/glove/document_vectors.txt', 'r', encoding="utf8") as f:
-        for i, line in enumerate(f):
-            values = line.split()
-            doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
-            df.loc[i] = [values[0], doc_similarity]
+    matrix = np.load('data/glove/document_vectors.npy', allow_pickle=True)
+    matrix, docs = np.array([pair[1] for pair in matrix]), [pair[0] for pair in matrix]
 
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
+    results = []
+    [results.append((docs[i], utils.cosine(query_vec, matrix[i]))) for i in range(len(docs))]
+
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if basic_search:
-            if i == Config.sections_to_display:
-                break
-        elif i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i] if basic_search else df['doc'][i].replace('data_orig_by_sect', 'data_by_sect')
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0] if basic_search else row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
@@ -189,7 +116,7 @@ def find_documents_lda(query):
     model, topic_repres, belonging = model_manager.load_model(model='lda')
     id2word = corpora.Dictionary.load(Config.lda_path+'/dict.pickle')
 
-    corp = utils.preprocess(query, punct=True, stopwrd=True, lda_clear=True)
+    corp = utils.preprocess(query, lda_clear=True)
     doc_bow = id2word.doc2bow(corp)
     all_belong_values = model[doc_bow]
     max_belong_value = max([y for x, y in all_belong_values])
@@ -206,24 +133,21 @@ def find_documents_lda(query):
 
     query_vec = utils.average([word2vec_wv[word] for word in corp])
 
-    df = pd.DataFrame(columns=['doc', 'similarity'])
+    results = []
     with open('data/word2vec/document_vectors.txt', 'r', encoding="utf8") as f:
         for i, line in enumerate(f):
             values = line.split()
             if not any((filenm+"\\") in values[0] for filenm in filenames):
                 continue
             doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
-            df.loc[i] = [values[0], doc_similarity]
+            results.append((values[0], doc_similarity))
 
-    df.sort_values(by=['similarity'], inplace=True, ignore_index=True, ascending=False)
-    print(df)
+    results.sort(key=lambda x: x[1], reverse=True)
+    results = results[:Config.sections_to_display]
 
     sections = []
-    for i, row in df.iterrows():
-        if i == Config.sections_to_display:
-            break
-
-        path = df['doc'][i]
+    for row in results:
+        path = row[0]
         with open(path, 'r', encoding="utf8") as f:
             section = f.read()
 
@@ -275,6 +199,3 @@ def answer(question, technique):
         result = allen_nlp.allennlp(question, embd_technique='word2vec')
 
     return {'result': result}
-
-if __name__ == '__main__':
-    find_documents("illegal gambling", "lda")

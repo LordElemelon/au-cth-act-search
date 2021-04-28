@@ -6,13 +6,21 @@ import os
 
 
 def read_files_walk():
-    #print("\n\nHELLO\n\n"+os.path.abspath(Config.corpus_path)+"\n\n")
-    
     for root, dirs, files in os.walk(Config.corpus_path):
         for file in files:
             if file.endswith(".txt"):
                 with open(os.path.join(root, file), encoding="utf8") as f:
                     yield os.path.join(root, file), f.read()
+
+
+def get_paths():
+    paths = []
+    for root, dirs, files in os.walk(Config.corpus_path):
+        for file in files:
+            if file.endswith(".txt"):
+                paths.append(os.path.join(root, file))
+
+    return paths
 
 
 def read_documents_for_word2vec():
@@ -33,15 +41,6 @@ def read_documents_for_doc2vec(tokens_only=False):
             yield path_content[0], tokens
         else:
             yield doc2vec.TaggedDocument(tokens, [i])
-
-
-def read_documents_for_tfidf():
-    corpus = []
-
-    for path, content in read_files_walk():
-        corpus.append((path, content))
-
-    return corpus
 
 
 def read_sections(names):

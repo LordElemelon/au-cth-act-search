@@ -6,6 +6,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
 @app.route('/basic-search', methods=['POST'])
 @cross_origin()
 def find_documents():
@@ -22,6 +23,7 @@ def answer():
 @cross_origin()
 def read_sections():
     return main.read_sections(request.json['names'])
+
 
 if __name__ == '__main__':
     app.run(debug=True)

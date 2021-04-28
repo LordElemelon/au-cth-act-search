@@ -1,6 +1,7 @@
 from gensim.models import KeyedVectors
 from gensim.models import Word2Vec, doc2vec as Doc2Vec, FastText, LdaModel
-from . import doc2vec, fasttext, utils, word2vec
+from sklearn.feature_extraction.text import TfidfVectorizer
+from . import doc2vec, fasttext, utils, word2vec, tfidf
 
 import gensim.downloader as api
 import os
@@ -18,6 +19,8 @@ def train(model, transfer_learning=False):
         embd_model = doc2vec.train_doc2vec(dm=0, vector_size=50, epochs=50)
     elif model == 'fasttext':
         embd_model = fasttext.train_fasttext()
+    elif model == 'tfidf':
+        embd_model = tfidf.train_tfidf()
 
     save_model(embd_model)
 
@@ -27,6 +30,8 @@ def train(model, transfer_learning=False):
         print('Doc2Vec training finished...')
     elif model == 'fasttext':
         print('fastText training finished...')
+    elif model == 'tfidf':
+        print('TfIdf training finished...')
     return embd_model
 
 
@@ -49,6 +54,12 @@ def save_model(model):
             os.makedirs(path)
 
         model.wv.save(path + '/gensim-fasttext.wv')
+    elif type(model) == TfidfVectorizer:
+        path = 'data/tfidf'
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        pickle.dump(model, open(path + '/vectorizer.pk', 'wb'))
 
 
 def load_model(model, pretrained=False):
