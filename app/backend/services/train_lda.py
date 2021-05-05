@@ -71,8 +71,9 @@ if __name__ == '__main__':
     
     start = perf_counter()
     print("Starting!")
-    # # Make LDA models
-    # num_topics = list(range(43, 49, 1))
+
+    # Make LDA models
+    # num_topics = list(range(36, 45, 1))
     # num_keywords = 50
 
     # LDA_models = {}
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     #                             num_topics=num,
     #                             update_every=1,
     #                             chunksize=4000,
-    #                             passes=20,
+    #                             passes=10,
     #                             alpha='auto',
     #                             random_state=42)
 
@@ -146,17 +147,17 @@ if __name__ == '__main__':
     # plt.legend(fontsize=20)
     # plt.show() 
 
-    # IDF for possible future
-    # idf = {}
-    # for doc in corpus:
-    #     for word, freq in doc:
-    #         if word not in idf:
-    #             idf[word] = 0
-    #         idf[word] = idf[word] + freq
-    # print(sorted([(id2word[wid], fr) for wid, fr in idf.items()], key=lambda x: x[1], reverse=True))
+    # # # IDF for possible future
+    # # idf = {}
+    # # for doc in corpus:
+    # #     for word, freq in doc:
+    # #         if word not in idf:
+    # #             idf[word] = 0
+    # #         idf[word] = idf[word] + freq
+    # # print(sorted([(id2word[wid], fr) for wid, fr in idf.items()], key=lambda x: x[1], reverse=True))
 
     # FINAL LDA MODEL
-    num_topics = 46
+    num_topics = 40
     num_keywords = 100
     lda_model = LdaModel(corpus=corpus,
                         id2word=id2word,
@@ -164,7 +165,7 @@ if __name__ == '__main__':
                         update_every=1,
                         eval_every=1,
                         chunksize=4000,
-                        passes=20,
+                        passes=15,
                         iterations=100,
                         alpha='auto',
                         eta='auto',
@@ -178,23 +179,23 @@ if __name__ == '__main__':
     topics_shown = lda_model.show_topics(num_topics=num_topics, num_words=num_keywords, formatted=False)
     # print(topics_shown)
     word_freq = {}
-    word_sum = {}
+    # word_sum = {}
     topics_to_save = {}
     for num, rep in topics_shown:
         if num not in topics_to_save:
             topics_to_save[num] = {}
         for word, freq in rep:
             if word not in word_freq:
-                word_freq[word] = 0
-            word_freq[word] = word_freq[word]+1
-            if word not in word_sum:
-                word_sum[word] = 0
-            word_sum[word] = word_sum[word]+freq
+                word_freq[word] = (0, 0)
+            word_freq[word] = (word_freq[word][0]+1, word_freq[word][1]+freq)
+            # if word not in word_sum:
+            #     word_sum[word] = 0
+            # word_sum[word] = word_sum[word]+freq
             topics_to_save[num][word] = freq
-    print(sorted(word_freq.items(), key=lambda x: x[1], reverse=True))
+    print(sorted(word_freq.items(), key=lambda x: x[1][0]*x[1][1], reverse=True))
     print("\n")
-    print(sorted(word_sum.items(), key=lambda x: x[1], reverse=True))
-    print("\n")
+    # print(sorted(word_sum.items(), key=lambda x: x[1], reverse=True))
+    # print("\n")
     for k, v in topics_to_save.items():
         print(k)
         for k2, v2 in v.items():
@@ -220,24 +221,24 @@ if __name__ == '__main__':
         pickle.dump(total_belonging, handle, protocol=pickle.HIGHEST_PROTOCOL)
     lda_model.save(Config.lda_path+'/lda.model')
 
-    # print(lda_model[corpus[0]])
-    # print("\n")
-    # print(lda_model[corpus])
+    # # print(lda_model[corpus[0]])
+    # # print("\n")
+    # # print(lda_model[corpus])
 
-    # p = re.compile("(-*\d+\.\d+) per-word .* (\d+\.\d+) perplexity")
-    # matches = [p.findall(l) for l in open('gensim.log')]
-    # matches = [m for m in matches if len(m) > 0]
-    # tuples = [t[0] for t in matches]
-    # perplexity = [float(t[1]) for t in tuples]
-    # liklihood = [float(t[0]) for t in tuples]
-    # iter = list(range(0,len(tuples)*10,10))
-    # plt.plot(iter,liklihood,c="black")
-    # plt.ylabel("log liklihood")
-    # plt.xlabel("iteration")
-    # plt.title("Topic Model Convergence")
-    # plt.grid()
-    # plt.savefig("convergence_liklihood.pdf")
-    # plt.close()
+    # # p = re.compile("(-*\d+\.\d+) per-word .* (\d+\.\d+) perplexity")
+    # # matches = [p.findall(l) for l in open('gensim.log')]
+    # # matches = [m for m in matches if len(m) > 0]
+    # # tuples = [t[0] for t in matches]
+    # # perplexity = [float(t[1]) for t in tuples]
+    # # liklihood = [float(t[0]) for t in tuples]
+    # # iter = list(range(0,len(tuples)*10,10))
+    # # plt.plot(iter,liklihood,c="black")
+    # # plt.ylabel("log liklihood")
+    # # plt.xlabel("iteration")
+    # # plt.title("Topic Model Convergence")
+    # # plt.grid()
+    # # plt.savefig("convergence_liklihood.pdf")
+    # # plt.close()
 
 
     print("Finished in %.2f mins" % ((perf_counter() - start) / 60))

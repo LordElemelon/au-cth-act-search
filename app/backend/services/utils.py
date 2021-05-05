@@ -42,6 +42,8 @@ def lda_clear_words():
             'paragraph', 'period', 'day', 'give', 'include', 'notice', 'time', 'mean', 'note', 'specify',
             'commonwealth', 'application', 'information', 'relate', 'take', 'require', 'matter', 'respect',
             'provide', 'effect', 'year', 'minister', 'state', 'decision', 'meaning']
+            # 'subject', 'division', 'relevant', 'particular', 'refer', 'determine', 'accordance', 'write', 'follow', 'reference', 'satisfied', 'make']
+            # 'subject', 'division', 'relevant', 'particular', 'refer']
 
 
 # If not lemmatization, then tokenize the string, remove the punctuation, or just simply call utils.simple_preprocess(line)

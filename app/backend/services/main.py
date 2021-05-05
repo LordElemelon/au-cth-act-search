@@ -190,7 +190,7 @@ def find_documents_lda(query):
     id2word = corpora.Dictionary.load(Config.lda_path+'/dict.pickle')
 
     corp = utils.preprocess(query, punct=True, stopwrd=True, lda_clear=True)
-    doc_bow = id2word.doc2bow(corp)
+    doc_bow = id2word.doc2bow(corp, return_missing=True)[0]
     all_belong_values = model[doc_bow]
     max_belong_value = max([y for x, y in all_belong_values])
     filtered_belong_values = [x for x, y in all_belong_values if y > 0.5*max_belong_value]
