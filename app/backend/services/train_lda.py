@@ -45,7 +45,7 @@ if __name__ == '__main__':
         dir_text = re.sub(r'(\(|\))+', ' ', dir_text)
         dir_text = re.sub(r'\s+', ' ', dir_text)
 
-        tokens = preprocess(dir_text, punct=True, stopwrd=True, lda_clear=True)
+        tokens = preprocess(dir_text, lda_clear=True)
         data_lemmatized.append(tokens)
 
     id2word = corpora.Dictionary(data_lemmatized)

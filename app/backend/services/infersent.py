@@ -17,7 +17,7 @@ def infersent(query, trained=True):
     FASTTEXT_PATH = 'data/fasttext/crawl-300d-2M.vec'
     infersent_model.set_w2v_path(FASTTEXT_PATH)
 
-    documents = [path_content[1] for path_content in io_manager.read_documents_for_tfidf()]
+    documents = [path_content[1] for path_content in io_manager.read_documents_for_word2vec()]
     infersent_model.build_vocab([path_content[1] for path_content in documents], tokenize=True)
 
     if not trained:

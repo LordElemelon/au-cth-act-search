@@ -12,6 +12,7 @@ if __name__ == '__main__':
     train(model='word2vec')
     train(model='doc2vec')
     train(model='fasttext')
+    train(model='tfidf')
     calculate_documents_glove()
 
     print('Everything finished successfully. You are ready to use the application.')
