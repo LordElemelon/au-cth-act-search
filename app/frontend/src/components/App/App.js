@@ -49,11 +49,11 @@ function App() {
     }
     setResult("");
     const cat = category.value;
-    console.log(value, cat);
+    // console.log(value, cat);
     if (cat === "elastic") {
       const hits = await apiService.elasticsearch(value);
       const resultArr = await apiService.fetchOriginalSection(hits);
-      console.log(resultArr);
+      // console.log(resultArr);
       // let res = "";
       // for (const text of resultArr) {
       //   res += text;
@@ -63,7 +63,7 @@ function App() {
       setResult(finalText);
     } else {
       const resultArr = await apiService.basicSearch(value, cat);
-      console.log(resultArr);
+      // console.log(resultArr);
       const finalText = resultArr.join("\n\n\n--------------\n\n\n");
       setResult(finalText);
     }

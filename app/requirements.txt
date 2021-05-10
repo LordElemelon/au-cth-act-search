@@ -10,6 +10,7 @@ allennlp-models
 sentence-transformers
 flask
 flask_cors
-gensim
+gensim==3.8.3
 matplotlib
 seaborn
+selenium

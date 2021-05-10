@@ -2,7 +2,7 @@ import spacy
 import numpy as np
 from nltk.corpus import stopwords
 
-nlp = spacy.load('en_core_web_lg')
+nlp = spacy.load('en_core_web_sm')
 nlp.max_length = 35000000
 
 

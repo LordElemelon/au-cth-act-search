@@ -133,26 +133,17 @@ def find_documents_lda(query):
 
     query_vec = utils.average([word2vec_wv[word] for word in corp])
 
+    matrix = np.load('data/word2vec/document_vectors.npy', allow_pickle=True)
+    matrix, docs = np.array([pair[1] for pair in matrix]), [pair[0] for pair in matrix]
+
     results = []
-    with open('data/word2vec/document_vectors.txt', 'r', encoding="utf8") as f:
-        for i, line in enumerate(f):
-            values = line.split()
-            if not any((filenm+"\\") in values[0] for filenm in filenames):
-                continue
-            doc_similarity = utils.cosine(query_vec, [float(x) for x in values[1:]])
-            results.append((values[0], doc_similarity))
+    [results.append((docs[i], utils.cosine(query_vec, matrix[i]))) for i in range(len(docs))]
 
     results.sort(key=lambda x: x[1], reverse=True)
     results = results[:Config.sections_to_display]
 
     sections = []
-    for row in results:
-        path = row[0]
-        with open(path, 'r', encoding="utf8") as f:
-            section = f.read()
-
-            sections.append(section)
-            print(section)
+    [sections.append(open(row[0].replace('data_orig_by_sect', 'data_by_sect'), 'r', encoding="utf8").read()) for row in results]
 
     return sections
 
